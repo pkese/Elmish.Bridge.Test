@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fable.Remoting.Giraffe" Version="4.10.0" />
-    <PackageReference Include="Saturn" Version="0.14.1" />
+    <PackageReference Include="Fable.Remoting.Giraffe" Version="5.2.0-rc-6" />
+    <PackageReference Include="Saturn" Version="0.15.0-preview03 " />
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
   </ItemGroup>
