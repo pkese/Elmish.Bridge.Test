@@ -15,3 +15,7 @@ analyzers
 deploy
 .local-chromium
 NPGSQL_FSHARP
+
+.fs.js
+.fs.js.map
+client/fs.js.build

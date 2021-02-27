@@ -17,7 +17,9 @@ var CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
     // See https://github.com/jantimon/html-webpack-plugin
     indexHtmlTemplate: "./src/index.html",
-    fsharpEntry: "./src/Client.fsproj",
+    //fsharpEntry: "./src/Client.fsproj",
+    //fsharpEntry: "./src/Main.fs.js",
+    fsharpEntry: "./fs.js.build/Main.js",
     cssEntry: "./src/styles/main.scss",
     outputDir: "./dist",
     assetsDir: "./public",
@@ -80,7 +82,7 @@ module.exports = {
     // to prevent browser caching if code changes
     output: {
         path: resolve(CONFIG.outputDir),
-        filename: isProduction ? '[name].[hash].js' : '[name].js'
+        filename: isProduction ? '[name].[fullhash].js' : '[name].js'
     },
     mode: isProduction ? "production" : "development",
     devtool: isProduction ? "source-map" : "eval-source-map",
@@ -142,6 +144,12 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.js$/,
+                enforce: "pre",
+                use: ["source-map-loader"],
+            },
+/*            
+            {
                 test: /\.fs(x|proj)?$/,
                 use: {
                     loader: "fable-loader",
@@ -149,6 +157,7 @@ module.exports = {
                         babel: CONFIG.babel
                     }
                 }
+
             },
             {
                 test: /\.js$/,
@@ -158,6 +167,7 @@ module.exports = {
                     options: CONFIG.babel
                 },
             },
+*/
             {
                 test: /\.(sass|scss|css)$/,
                 use: [
@@ -176,7 +186,8 @@ module.exports = {
                 use: ["file-loader"]
             }
         ]
-    }
+    },
+    ignoreWarnings: [/Failed to parse source map/],
 };
 
 function resolve(filePath) {
