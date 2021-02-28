@@ -51,7 +51,10 @@ var CONFIG = {
 }
 
 // If we're running the webpack-dev-server, assume we're in development mode
-var isProduction = !process.argv.find(v => v.indexOf('webpack-dev-server') !== -1);
+//var isProduction = !process.argv.find(v => v.indexOf('webpack-dev-server') !== -1);
+
+// If we're running the "webpack serve", assume we're in development mode
+var isProduction = process.argv.indexOf('serve') === -1;
 console.log("Bundling for " + (isProduction ? "production" : "development") + "...");
 
 // The HtmlWebpackPlugin allows us to use a template for the index.html page
@@ -72,20 +75,29 @@ var commonPlugins = [
 module.exports = {
     // In development, bundle styles together with the code so they can also
     // trigger hot reloads. In production, put them in a separate CSS file.
+
+    entry: {
+        app: [resolve(CONFIG.fsharpEntry), resolve(CONFIG.cssEntry)]
+    },
+
+/*
     entry: isProduction ? {
         app: [resolve(CONFIG.fsharpEntry), resolve(CONFIG.cssEntry)]
     } : {
             app: [resolve(CONFIG.fsharpEntry)],
             style: [resolve(CONFIG.cssEntry)]
         },
+*/
     // Add a hash to the output file name in production
     // to prevent browser caching if code changes
     output: {
         path: resolve(CONFIG.outputDir),
-        filename: isProduction ? '[name].[fullhash].js' : '[name].js'
+        //filename: isProduction ? '[name].[contenthash].js' : '[name].js'
+        filename: '[name].[contenthash].js'
     },
     mode: isProduction ? "production" : "development",
-    devtool: isProduction ? "source-map" : "eval-source-map",
+    devtool: isProduction ? "source-map" : "cheap-module-source-map", //"eval-source-map",
+    target: "web",
     optimization: {
         // Split the code coming from npm packages into a different file.
         // 3rd party dependencies change less often, let the browser cache them.
@@ -94,6 +106,11 @@ module.exports = {
                 commons: {
                     test: /node_modules/,
                     name: "vendors",
+                    chunks: "all"
+                },
+                fable: {
+                    test: /\.fable/,
+                    name: "fable",
                     chunks: "all"
                 }
             }
@@ -146,19 +163,10 @@ module.exports = {
             {
                 test: /\.js$/,
                 enforce: "pre",
+                exclude: /node_modules/, // ? makes it faster (peter)
                 use: ["source-map-loader"],
             },
-/*            
-            {
-                test: /\.fs(x|proj)?$/,
-                use: {
-                    loader: "fable-loader",
-                    options: {
-                        babel: CONFIG.babel
-                    }
-                }
-
-            },
+/* babel
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
@@ -187,7 +195,6 @@ module.exports = {
             }
         ]
     },
-    ignoreWarnings: [/Failed to parse source map/],
 };
 
 function resolve(filePath) {
