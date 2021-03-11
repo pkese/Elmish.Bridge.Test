@@ -2,7 +2,8 @@ module App
 
 open Feliz
 open Elmish
-open Shared
+open Shared.Api
+open Shared.Types
 
 type State = { Counter: Deferred<Result<Counter, string>> }
 

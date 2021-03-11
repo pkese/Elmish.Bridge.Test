@@ -1,7 +1,8 @@
-﻿module Shared
+﻿module Shared.Api
 
 /// Defines how routes are generated on server and mapped from client
 let routerPaths typeName method = sprintf "/api/%s" method
+
 
 type Counter = { value : int }
 
@@ -9,4 +10,7 @@ type Counter = { value : int }
 /// to learn more, read the docs at https://zaid-ajaj.github.io/Fable.Remoting/src/basics.html
 type IServerApi = {
     Counter : unit -> Async<Counter>
+    FullState : unit -> Async<Shared.Types.Model>
+    ShortState : unit -> Async<Shared.Types.HwState>
+    PostMsg : Shared.Types.AppMsg list -> Async<Shared.Types.Model>
 }

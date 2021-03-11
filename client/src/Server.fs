@@ -29,10 +29,10 @@ let combine (paths: string list) =
 let normalize (path: string) = combine [ virtualPath; path ]
 
 let normalizeRoutes typeName methodName =
-    Shared.routerPaths typeName methodName
+    Shared.Api.routerPaths typeName methodName
     |> normalize
 
 let api =
     Remoting.createApi()
     |> Remoting.withRouteBuilder normalizeRoutes
-    |> Remoting.buildProxy<Shared.IServerApi>
+    |> Remoting.buildProxy<Shared.Api.IServerApi>

@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\shared\Shared.fsproj" />
+    <ProjectReference Include="..\hardware\Hardware.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

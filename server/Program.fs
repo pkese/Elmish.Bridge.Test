@@ -2,7 +2,7 @@
 
 open Saturn
 open Giraffe
-open Shared
+open Shared.Api
 open Server
 open Fable.Remoting.Server
 open Fable.Remoting.Giraffe
