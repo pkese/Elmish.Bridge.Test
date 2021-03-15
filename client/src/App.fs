@@ -2,59 +2,39 @@ module App
 
 open Feliz
 open Elmish
+open Elmish.Bridge
 open Shared.Api
-open Shared.Types
 
-type State = { Counter: Deferred<Result<Counter, string>> }
+type State = { Counter: Result<Counter, string> }
 
-type Msg =
-    | Increment
-    | Decrement
-    | LoadCounter of AsyncOperationStatus<Result<Counter, string>>
+type ClientMsg =
+    | AppMsg of Msg
+    | NetworkMsg of DownstreamMsg
+    | Disconnected
 
-let init() = { Counter = HasNotStartedYet }, Cmd.ofMsg (LoadCounter Started)
+let init() = { Counter = Error "Waiting for connection..." }, Cmd.none
 
-let update (msg: Msg) (state: State) =
+let update (msg: ClientMsg) (state: State) : State * Cmd<ClientMsg> =
+    printfn "elmish update: %A" msg
     match msg with
-    | LoadCounter Started ->
-        let loadCounter = async {
-            try
-                let! counter = Server.api.Counter()
-                return LoadCounter (Finished (Ok counter))
-            with error ->
-                Log.developmentError error
-                return LoadCounter (Finished (Error "Error while retrieving Counter from server"))
-        }
+    | AppMsg Increment ->
+        state, Cmd.bridgeSend <| UpstreamMsg.AppMsg Increment
+    | AppMsg Decrement ->
+        state, Cmd.bridgeSend <| UpstreamMsg.AppMsg Decrement
+    | NetworkMsg Welcome ->
+        printfn "got Welcome"
+        { Counter = Error "Waiting for counter state..." }, Cmd.bridgeSend UpstreamMsg.GetState
+    | NetworkMsg (StateChange newState) ->
+        printfn "got counter %A" newState
+        { state with Counter = Ok { value = newState.Counter } }, Cmd.none
+    | Disconnected ->
+        printfn "Disconnected"
+        { state with Counter = Error "Disconnected" }, Cmd.none
 
-        { state with Counter = InProgress }, Cmd.fromAsync loadCounter
-
-    | LoadCounter (Finished counter) ->
-        { state with Counter = Resolved counter }, Cmd.none
-
-    | Increment ->
-        let updatedCounter =
-            state.Counter
-            |> Deferred.map (function
-                | Ok counter -> Ok { counter with value = counter.value + 1 }
-                | Error error -> Error error)
-
-        { state with Counter = updatedCounter }, Cmd.none
-
-    | Decrement ->
-        let updatedCounter =
-            state.Counter
-            |> Deferred.map (function
-                | Ok counter -> Ok { counter with value = counter.value - 1 }
-                | Error error -> Error error)
-
-        { state with Counter = updatedCounter }, Cmd.none
-
-let renderCounter (counter: Deferred<Result<Counter, string>>)=
+let renderCounter (counter: Result<Counter, string>)=
     match counter with
-    | HasNotStartedYet -> Html.none
-    | InProgress -> Html.h1 "Loading..."
-    | Resolved (Ok counter) -> Html.h1 counter.value
-    | Resolved (Error errorMsg) ->
+    | Ok counter -> Html.h1 counter.value
+    | Error errorMsg ->
         Html.h1 [
             prop.style [ style.color.crimson ]
             prop.text errorMsg

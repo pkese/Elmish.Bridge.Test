@@ -42,8 +42,8 @@ type RelayChannel =
     | PumpaZalog
     | ZalogSmerHladna
     | PecOlje
-    | PecSmerOlje
-    | PecSmerDrva
+    | VentilPecOlje
+    | VentilPecDrva
   with
     static member name = function
         | PumpaHisa -> "Črpalka hiša"
@@ -51,17 +51,18 @@ type RelayChannel =
         | PumpaZalog -> "Črpalka zalogovnik"
         | ZalogSmerHladna -> "Zalogovnik smer dol"
         | PecOlje -> "Vklop peči na olje"
-        | PecSmerOlje -> "Voda v peč na olje"
-        | PecSmerDrva -> "Voda v peč na drva"
+        | VentilPecOlje -> "Ventil peč na olje"
+        | VentilPecDrva -> "Ventil peč na drva"
     static member all = [
         PumpaHisa
         PumpaBojler
         PumpaZalog
         ZalogSmerHladna
         PecOlje
-        PecSmerOlje
+        VentilPecOlje
     ]
 
+[<Struct>]
 type RelayState =
     | On
     | Off
@@ -77,6 +78,8 @@ type HwState = {
         relays = [ for c in RelayChannel.all -> c, Off ] |> Map.ofSeq
     }
 
+
+//todo: split into sysconfig + targets + state
 type Model = {
     hwState: HwState
     targetTemp: float
@@ -113,3 +116,9 @@ type AppMsg =
     //| TempSensors of Map<TempSensor,float option>
     | SetTempAddrMapping of Map<string,TempSensor>
     | HwMsg of HwMsg
+
+type UpstreamMsg =
+    | FullModel of Model
+
+type DownstreamMsg =
+    | AppMsg of AppMsg    

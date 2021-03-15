@@ -139,6 +139,7 @@ module App =
                 if overheatingBy > 4.0 then
                     yield! setRelay PumpaZalog On
                     yield! setRelay ZalogSmerHladna On
+                    yield! setRelay PecOlje Off
             else
                 // crpalka hisa
                 if state.grejHiso = On then
@@ -190,6 +191,10 @@ module App =
                 elif relayHisa = On then
                     if getRelay ZalogSmerHladna = On then
                         yield (ZalogSmerHladna, Off) 
+
+                // pec olje
+                // ventil pec olje
+                // ventil pec drva
 
         ]
         Cmd.ofMsg (HwMsg (HwMsg.SwitchRelays relaySwitches))
