@@ -5,24 +5,23 @@ open Giraffe
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.AspNetCore.Http
 
-
 open Elmish
 open Elmish.Bridge
 
 let hub =
     ServerHub<unit, Shared.Api.UpstreamMsg, Shared.Api.DownstreamMsg>()
 
-module SharedCounter =
+module GlobalCounter =
     open Shared.Api
-    let init _ =
-        { Counter = 10 }, Cmd.none
+    
+    let init () = { value = 10 }, Cmd.none
 
     let update msg model =
         printfn "Got counter msg: %A" msg
-        let model' : State =
+        let model' : Counter =
             match msg with
-            | AppMsg Increment -> { model with Counter = model.Counter + 1 }
-            | AppMsg Decrement -> { model with Counter = model.Counter - 1 }
+            | AppMsg Increment -> { model with value = model.value + 1 }
+            | AppMsg Decrement -> { model with value = model.value - 1 }
             | GetState -> hub.BroadcastClient (StateChange model); model
         if model' <> model then
             hub.BroadcastClient (StateChange model')
@@ -30,14 +29,13 @@ module SharedCounter =
 
     let view model dispatch = ()
 
-    let mutable private externalDispatch = fun msg -> ()
+    let mutable private dispatchFn = fun msg -> ()
     let private registerDispatch dispatch =
-        externalDispatch <- dispatch
+        // grab `dispatch` and store it for posting messages from outside
+        dispatchFn <- dispatch
         dispatch
 
-    let dispatch msg =
-        //printfn "counter: trying to dispatch '%A'" msg
-        externalDispatch msg
+    let dispatch msg = dispatchFn msg
 
     Program.mkProgram init update view
     |> Program.withSyncDispatch registerDispatch
@@ -53,7 +51,7 @@ module WebsocketClientApp =
 
     let update (dispatch: Dispatch<_>) msg model =
         //printfn "got websocket client msg: '%A'" msg
-        SharedCounter.dispatch msg
+        GlobalCounter.dispatch msg
         model, Cmd.none
 
     let server =
@@ -81,7 +79,7 @@ let application = application {
     use_gzip
     //use_iis
     //add_channel "/channel" Channel.channel
-    url "http://0.0.0.0:5000"
+    //url "http://0.0.0.0:5000"
     service_config serviceConfig
     webhost_config Env.configureHost
 }

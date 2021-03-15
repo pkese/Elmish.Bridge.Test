@@ -26,7 +26,7 @@ let update (msg: ClientMsg) (state: State) : State * Cmd<ClientMsg> =
         { Counter = Error "Waiting for counter state..." }, Cmd.bridgeSend UpstreamMsg.GetState
     | NetworkMsg (StateChange newState) ->
         printfn "got counter %A" newState
-        { state with Counter = Ok { value = newState.Counter } }, Cmd.none
+        { state with Counter = Ok newState }, Cmd.none
     | Disconnected ->
         printfn "Disconnected"
         { state with Counter = Error "Disconnected" }, Cmd.none

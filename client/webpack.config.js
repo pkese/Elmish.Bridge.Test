@@ -29,13 +29,11 @@ var CONFIG = {
     devServerProxy: {
         '/sockjs-node': {
             target: "http://localhost:5000",
-            changeOrigin: true,
             ws: true,
         },
         '/**': {
             // assuming the suave server is running on port 8083
-            //target: "http://localhost:5000",
-            target: "http://192.168.0.61:5000",
+            target: "http://localhost:5000",
             changeOrigin: true,
             ws: true,
         },
