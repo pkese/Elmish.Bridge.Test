@@ -18,8 +18,7 @@
     <PackageReference Include="Feliz" Version="1.34.0" />
     <PackageReference Include="Feliz.Router" Version="3.5.0" />
     <PackageReference Include="Zanaptak.TypedCssClasses" Version="0.2.0" />
-    <PackageReference Include="Elmish.Bridge.Client" Version="3.4.0" />
-    <PackageReference Include="Thoth.Json" Version="5.1.0" />
+    <PackageReference Include="Elmish.Bridge.Client" Version="5.0.0-rc-3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\shared\Shared.fsproj" />
