@@ -9,7 +9,7 @@ type Msg =
     | Decrement
 
 type UpstreamMsg =
-    | AppMsg of Msg
+    | AppMsgs of Msg list
     | GetState
 
 type DownstreamMsg =

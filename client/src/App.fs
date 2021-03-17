@@ -18,9 +18,9 @@ let update (msg: ClientMsg) (state: State) : State * Cmd<ClientMsg> =
     printfn "elmish update: %A" msg
     match msg with
     | AppMsg Increment ->
-        state, Cmd.bridgeSend <| UpstreamMsg.AppMsg Increment
+        state, Cmd.bridgeSend <| UpstreamMsg.AppMsgs [Increment]
     | AppMsg Decrement ->
-        state, Cmd.bridgeSend <| UpstreamMsg.AppMsg Decrement
+        state, Cmd.bridgeSend <| UpstreamMsg.AppMsgs [Decrement]
     | NetworkMsg Welcome ->
         printfn "got Welcome"
         { Counter = Error "Waiting for counter state..." }, Cmd.bridgeSend UpstreamMsg.GetState

@@ -20,8 +20,13 @@ module GlobalCounter =
         printfn "Got counter msg: %A" msg
         let model' : Counter =
             match msg with
-            | AppMsg Increment -> { model with value = model.value + 1 }
-            | AppMsg Decrement -> { model with value = model.value - 1 }
+            | AppMsgs msgs ->
+                (model, msgs)
+                ||> List.fold (fun model msg ->
+                    match msg with
+                    | Increment -> { model with value = model.value + 1 }
+                    | Decrement -> { model with value = model.value - 1 }
+                )
             | GetState -> hub.BroadcastClient (StateChange model); model
         if model' <> model then
             hub.BroadcastClient (StateChange model')
@@ -58,6 +63,7 @@ module WebsocketClientApp =
         printfn "server initialized."
         Bridge.mkServer Shared.Api.wsEndpoint init update
         //|> Bridge.register Shared.Api.WebsocketServerMsg
+        |> Bridge.withConsoleTrace
         |> Bridge.withServerHub hub
         |> Bridge.run Giraffe.server
 
